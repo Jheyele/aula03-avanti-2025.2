@@ -19,7 +19,8 @@ const userTechController = new UserTechController();
 router.post("/login", loginController.login);
 
 // User routes
-router.get("/users", authenticate, userController.findAllUsers);
+router.get("/users", userController.findAllUsers);
+router.get("/user/:id", userController.findUser);
 router.post("/users", validateBody(createUserSchema), userController.saveUser);
 router.put("/users/:id", userController.updateUser);
 router.delete("/users/:id", userController.deleteUser);

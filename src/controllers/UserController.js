@@ -14,6 +14,20 @@ export class UserController {
     }
   }
 
+  async findUser(request, response) {
+    const { id } = request.params;
+
+    try {
+      const user = await prismaClient.user.findUnique({
+        where: { id },
+        select: { id: true, name: true, email: true, phone: true, isAdmin: true },
+      });
+      return response.status(200).json(user);
+    } catch (error) {
+      return response.status(500).json({ error: "Internal server error" });
+    }
+  }
+
   async saveUser(request, response) {
     const { name, email, password, isAdmin = false, phone } = request.body;
 
@@ -46,7 +60,7 @@ export class UserController {
 
   async updateUser(request, response) {
     const { id } = request.params;
-    const { name, email, phone } = request.body;
+    const { name, email, phone, isAdmin, password } = request.body;
 
     try {
       const user = await prismaClient.user.findUnique({ where: { id } });
@@ -57,7 +71,7 @@ export class UserController {
 
       const updatedUser = await prismaClient.user.update({
         where: { id },
-        data: { name, email, phone },
+        data: { name, email, phone, isAdmin, password },
         select: { id: true, name: true, email: true, phone: true, isAdmin: true },
       });
 
