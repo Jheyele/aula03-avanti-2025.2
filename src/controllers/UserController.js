@@ -59,28 +59,40 @@ export class UserController {
   }
 
   async updateUser(request, response) {
-    const { id } = request.params;
-    const { name, email, phone, isAdmin, password } = request.body;
+  const { id } = request.params;
+  const { name, email, phone, isAdmin, password } = request.body;
 
-    try {
-      const user = await prismaClient.user.findUnique({ where: { id } });
+  try {
+    const user = await prismaClient.user.findUnique({ where: { id } });
 
-      if (!user) {
-        return response.status(404).json({ error: "User not found" });
-      }
-
-      const updatedUser = await prismaClient.user.update({
-        where: { id },
-        data: { name, email, phone, isAdmin, password },
-        select: { id: true, name: true, email: true, phone: true, isAdmin: true },
-      });
-
-      return response.status(200).json(updatedUser);
-
-    } catch (error) {
-      return response.status(500).json({ error: "Internal server error" });
+    if (!user) {
+      return response.status(404).json({ error: "User not found" });
     }
+    
+    const dataToUpdate = {
+      name,
+      email,
+      phone,
+      isAdmin,
+    };
+
+    if (password) {
+      const hashedPassword = bcrypt.hashSync(password, 10);
+      dataToUpdate.password = hashedPassword;
+    }
+
+    const updatedUser = await prismaClient.user.update({
+      where: { id },
+      data: dataToUpdate
+    });
+
+    return response.status(200).json(updatedUser);
+
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({ error: "Internal server error" });
   }
+}
 
   async deleteUser(request, response) {
     const { id } = request.params;

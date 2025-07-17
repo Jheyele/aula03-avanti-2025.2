@@ -2,11 +2,11 @@ import { prismaClient } from "../database/PrismaClient.js";
 
 export class UserTechController {
   async addTechToUser(request, response) {
-    const { user_id, tech_id } = request.body;
+    const { userId, techId } = request.body;
 
     try {
-      const user = await prismaClient.user.findUnique({ where: { id: user_id } });
-      const tech = await prismaClient.tech.findUnique({ where: { id: tech_id } });
+      const user = await prismaClient.user.findUnique({ where: { id: userId } });
+      const tech = await prismaClient.tech.findUnique({ where: { id: techId } });
 
       if (!user || !tech) {
         return response.status(404).json({ error: "User or Tech not found" });
@@ -15,8 +15,8 @@ export class UserTechController {
       const userTechExists = await prismaClient.userTech.findUnique({
         where: {
           user_id_tech_id: {
-            user_id,
-            tech_id
+            user_id: userId,
+            tech_id: techId
           }
         }
       });
@@ -27,8 +27,8 @@ export class UserTechController {
 
       const userTech = await prismaClient.userTech.create({
         data: {
-          user_id,
-          tech_id
+          user_id: userId,
+          tech_id: techId
         },
         select: {
           id: true,
